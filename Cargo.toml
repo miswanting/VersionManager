@@ -1,5 +1,5 @@
 [package]
-name = "VersionManager"
+name = "version_manager"
 version = "0.1.0"
 authors = ["Miswanting <453542772@qq.com>"]
 edition = "2018"
