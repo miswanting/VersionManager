@@ -66,17 +66,16 @@ fn main() {
         fs::write(DATABASE_FILE_NAME, json).unwrap();
     };
 }
-fn init_scan(root: &Path, db: &mut Database) {
-    let root_path = Path::new(root);
-    for each in fs::read_dir(root_path).unwrap() {
-        let dir = each.unwrap();
-        let pb = dir.path();
-        if pb.is_dir() {
-            init_scan(&pb, db)
+fn init_scan(path: &Path, db: &mut Database) {
+    for each in fs::read_dir(path).unwrap() {
+        let d = each.unwrap();
+        let p = d.path();
+        if p.is_dir() {
+            init_scan(&p, db)
         } else {
-            let metadata = fs::metadata(&pb);
+            let metadata = fs::metadata(&p);
             db.data.push(FileInfo {
-                path: pb.to_str().unwrap().to_string(),
+                path: p.to_str().unwrap().to_string(),
                 time: metadata
                     .unwrap()
                     .modified()
