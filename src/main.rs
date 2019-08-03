@@ -1,10 +1,12 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use std::path::PathBuf;
 use std::time;
 extern crate regex;
 use regex::Regex;
+extern crate chrono;
+use chrono::offset::Local;
+use std::thread;
 // 配置文件结构
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
@@ -79,19 +81,28 @@ fn main() {
     } else {
         // 生成数据库
         let path = Path::new(".");
-        init_scan(path, &cf, &mut db);
+        scan(path, &cf, &mut db);
         let json = serde_json::to_string(&db).unwrap();
         fs::write(DATABASE_FILE_NAME, json).unwrap();
     };
+    let path = Path::new(".");
+    watcher(path, &cf, &mut db);
 }
-fn init_scan(path: &Path, cf: &Config, db: &mut Database) {
+fn watcher(path: &Path, cf: &Config, db: &mut Database) {
+    let handle = thread::spawn(move || loop {
+        println!("123");
+        thread::sleep(time::Duration::from_secs(1));
+    });
+    handle.join().unwrap();
+}
+fn scan(path: &Path, cf: &Config, db: &mut Database) {
     for each in fs::read_dir(path).unwrap() {
         let d = each.unwrap();
         let metadata = d.metadata();
         let p = d.path();
         if p.is_dir() {
             // 处理文件夹
-            init_scan(&p, cf, db)
+            scan(&p, cf, db)
         } else {
             // 处理文件
             let ext_result = p.extension();
@@ -111,15 +122,18 @@ fn init_scan(path: &Path, cf: &Config, db: &mut Database) {
                         // 检测到初始化文件标记
                         let caps = r_init.captures(file_stem).unwrap();
                         let name = caps.get(1).unwrap().as_str().to_string();
+                        let name: Vec<&str> = name.split_ascii_whitespace().collect();
+                        let name = name.join(" ");
                         let mut new_path = p.to_path_buf();
-                        let new_file_name =
-                            format!("{} v{}.{}.{}", name, DEFAULT_MAJOR, DEFAULT_MINOR, ext);
-                        // let new_file_name = name + " v0.1" + ext.to_str().unwrap();
+                        let new_file_name = format!(
+                            "{} v{}.{}-{}.{}",
+                            name,
+                            DEFAULT_MAJOR,
+                            DEFAULT_MINOR,
+                            get_current_time_stamp(),
+                            ext
+                        );
                         new_path.set_file_name(new_file_name);
-                        // let new_path = p.to_string_lossy();
-                        // let new_path = new_path + " v1.0.1." + ext.to_str().unwrap();
-                        // println!("{:?}", new_path);
-                        // let new_path=new_path;
                         fs::rename(p.clone(), new_path).unwrap();
                     }
                     db.data.push(FileInfo {
@@ -136,8 +150,11 @@ fn init_scan(path: &Path, cf: &Config, db: &mut Database) {
             }
         }
     }
+    println!("{}", get_current_time_stamp());
 }
-fn get_current_time_stamp() {}
+fn get_current_time_stamp() -> String {
+    format!("{}", Local::now().date().format("%y%m%d"))
+}
 fn search_path(path: &Path) {
     for each in fs::read_dir(path).unwrap() {
         let dir = each.unwrap();
