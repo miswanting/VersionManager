@@ -26,7 +26,16 @@ struct FileInfo {
     path: String,
     time: u64,
 }
-
+#[derive(Debug, Serialize, Deserialize)]
+struct VersionInfo {
+    path: u8,
+    time: u64,
+    major: u8,
+    minor: u8,
+    patch: u8,
+    stamp: u8,
+    description: String,
+}
 // 默认参数
 const DEFAULT_MAJOR: u8 = 0;
 const DEFAULT_MINOR: u8 = 1;
@@ -34,6 +43,7 @@ const DEFAULT_PATCH: u8 = 0;
 const CONFIG_FILE_NAME: &str = "config.yaml";
 const DATABASE_FILE_NAME: &str = "database.json";
 const RE_INIT: &str = r"^(.*?)-init$";
+const RE_ALL: &str = r"^(?P<name>.*?)\sv(?P<major>\d*?)(?:\.(?P<minor>\d*?)(?:\.(?P<patch>\d*?))?)?(?:\-(?P<stamp>\d*?))?(?:\+(?P<description>.*?))?\.(?P<extension>.*?)$";
 
 fn main() {
     // 数据初始化
