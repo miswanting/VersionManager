@@ -41,7 +41,7 @@ struct VersionInfo {
     stamp: u8,
     description: String,
 }
-// 默认参数
+// 常量
 const DEFAULT_MAJOR: u8 = 0;
 const DEFAULT_MINOR: u8 = 1;
 const DEFAULT_PATCH: u8 = 0;
