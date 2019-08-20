@@ -68,7 +68,14 @@ fn main() {
             .duration_since(time::UNIX_EPOCH)
             .unwrap()
             .as_secs(),
-        data: Vec::new(),
+        files: Vec::new(),
+    };
+    let mut new_db = Database {
+        time: time::SystemTime::now()
+            .duration_since(time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs(),
+        files: Vec::new(),
     };
     let cf_path = Path::new(CONFIG_FILE_NAME);
     let db_path = Path::new(DATABASE_FILE_NAME);
@@ -132,36 +139,43 @@ fn scan(path: &Path, cf: &Config, db: &mut Database) {
                     }
                 }
                 if is_supported_type {
+                    // 如果文件类型受支持
+                    // 解构文件名
                     let file_stem = p.file_stem().unwrap().to_str().unwrap();
-                    let r_init = Regex::new(RE_INIT).unwrap();
-                    if r_init.is_match(file_stem) {
-                        // 检测到初始化文件标记
-                        let caps = r_init.captures(file_stem).unwrap();
-                        let name = caps.get(1).unwrap().as_str().to_string();
-                        let name: Vec<&str> = name.split_ascii_whitespace().collect();
-                        let name = name.join(" ");
-                        let mut new_path = p.to_path_buf();
-                        let new_file_name = format!(
-                            "{} v{}.{}-{}.{}",
-                            name,
-                            DEFAULT_MAJOR,
-                            DEFAULT_MINOR,
-                            get_current_time_stamp(),
-                            ext
-                        );
-                        new_path.set_file_name(new_file_name);
-                        fs::rename(p.clone(), new_path).unwrap();
-                    }
-                    db.data.push(FileInfo {
-                        path: p.to_str().unwrap().to_string(),
-                        time: metadata
-                            .unwrap()
-                            .modified()
-                            .unwrap()
-                            .duration_since(time::UNIX_EPOCH)
-                            .unwrap()
-                            .as_secs(),
-                    });
+                    let re_init = Regex::new(RE_ALL).unwrap();
+                    let caps = re_init.captures(file_stem).unwrap();
+                    println!("{:?}", caps);
+                    // let file_stem = p.file_stem().unwrap().to_str().unwrap();
+                    // let r_init = Regex::new(RE_INIT).unwrap();
+                    // if r_init.is_match(file_stem) {
+                    //     // 检测到初始化文件标记
+                    //     let caps = r_init.captures(file_stem).unwrap();
+                    //     let name = caps.get(1).unwrap().as_str().to_string();
+                    //     let name: Vec<&str> = name.split_ascii_whitespace().collect();
+                    //     let name = name.join(" ");
+                    //     let mut new_path = p.to_path_buf();
+                    //     let new_file_name = format!(
+                    //         "{} v{}.{}-{}.{}",
+                    //         name,
+                    //         DEFAULT_MAJOR,
+                    //         DEFAULT_MINOR,
+                    //         get_current_time_stamp(),
+                    //         ext
+                    //     );
+                    //     new_path.set_file_name(new_file_name);
+                    //     fs::rename(p.clone(), new_path).unwrap();
+                    // db.files.push(FileInfo {
+                    //     name:name,
+                    //     versions:VersionInfo{},
+                    //     // path: p.to_str().unwrap().to_string(),
+                    //     // time: metadata
+                    //     //     .unwrap()
+                    //     //     .modified()
+                    //     //     .unwrap()
+                    //     //     .duration_since(time::UNIX_EPOCH)
+                    //     //     .unwrap()
+                    //     //     .as_secs(),
+                    // });
                 }
             }
         }
