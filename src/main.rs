@@ -22,14 +22,14 @@ struct Config {
 #[derive(Debug, Serialize, Deserialize)]
 struct Database {
     time: u64,
-    data: Vec<FileInfo>,
+    files: Vec<FileInfo>,
 }
 
 // 文件信息结构
 #[derive(Debug, Serialize, Deserialize)]
 struct FileInfo {
-    path: String,
-    time: u64,
+    name: String,
+    versions: Vec<VersionInfo>,
 }
 #[derive(Debug, Serialize, Deserialize)]
 struct VersionInfo {
