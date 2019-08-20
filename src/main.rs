@@ -143,8 +143,13 @@ fn scan(path: &Path, cf: &Config, db: &mut Database) {
                     // 解构文件名
                     let file_stem = p.file_stem().unwrap().to_str().unwrap();
                     let re_init = Regex::new(RE_ALL).unwrap();
-                    let caps = re_init.captures(file_stem).unwrap();
-                    println!("{:?}", caps);
+                    let raw_caps = re_init.captures(file_stem);
+                    match raw_caps {
+                        Some(caps) => {
+                            println!("{:?}", caps);
+                        }
+                        None => {}
+                    }
                     // let file_stem = p.file_stem().unwrap().to_str().unwrap();
                     // let r_init = Regex::new(RE_INIT).unwrap();
                     // if r_init.is_match(file_stem) {
