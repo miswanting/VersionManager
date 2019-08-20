@@ -7,6 +7,11 @@ use regex::Regex;
 extern crate chrono;
 use chrono::offset::Local;
 use std::thread;
+/*
+1. 加载旧数据库，生成新数据库
+2. 比较并处理新旧数据库
+3. 处理动作
+*/
 // 配置文件结构
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
